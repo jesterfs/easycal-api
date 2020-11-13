@@ -2,25 +2,35 @@ require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-const {CLIENT_ORIGIN} = require('./config');
 const helmet = require('helmet')
 const { NODE_ENV } = require('./config')
+const MembersRouter = require('./members/members-router')
+const CalendarsRouter = require('./calendars/calendars-router')
+const EventsRouter = require('./events/events-router')
+
+const MembersService = require('./members/membersservice')
+// const xss = require('xss')
+const jsonParser = express.json()
+const path = require('path')
 
 const app = express()
 
-const morganOption = (process.env.NODE_ENV === 'production')
+const morganOption = (NODE_ENV === 'production')
   ? 'tiny'
   : 'common';
 
-app.use(morgan(morganOption))
-app.use(helmet())
-app.use(cors({
-  origin: CLIENT_ORIGIN
+app.use(morgan(morganOption, {
+  skip: () => NODE_ENV === 'test',
 }))
+app.use(cors())
+app.use(helmet())
 
-app.get('/', (req, res) => {
-       res.send('Hello, world!')
-     })
+app.use('/api/members', MembersRouter)
+app.use('/api/calendars', CalendarsRouter)
+app.use('/api/events', EventsRouter)
+
+
+
 
 app.use(function errorHandler(error, req, res, next) {
     let response

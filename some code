@@ -1,0 +1,51 @@
+function inviteMembers(db, eventId, memberIds) {
+  return db('members_events').insert(
+    memberIds.map((id) => ({
+      member_id: id, event_id: id
+    })
+  ));
+}
+
+async insertEventWithInvites(db, newEvent, memberIds) {
+    const event = await insertEvent(db, newEvent);
+    await inviteMembers(db, event.id, memberIds);
+   return event;
+}
+
+app.post('/events', (req, res) => {
+
+  const { memberIds } = req.body;
+
+  EventsService.createEvent(db, event).then(
+    (event) => EventsService.inviteMembers(db, event.id, memberIds)
+  ).then(
+    () => res.json({})
+  );
+
+  
+
+  /*const event = await EventsService.createEvent(db, event);
+  await EventsService.inviteMembers(db, event.id, memberIds);
+
+  return res.json({});*/
+  
+});
+
+
+
+
+// encrypt
+const token = jwt.sign({ userId: 5 }, 'SECRET', {algorithm: 'HS256', subject: 5 });
+
+
+// decrypt              { id: 5 }
+// ajsldkfjasdkj
+
+let data;
+try {
+  data = jwt.verify(token, 'SECRET', {algorithm: 'HS256'}); // {userId: 5, subject: 5 }
+} catch {
+  // here you are not
+}
+
+// here you are logged

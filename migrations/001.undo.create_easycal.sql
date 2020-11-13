@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS member_events;
+DROP TABLE IF EXISTS events;
+DROP TABLE IF EXISTS calendars;
+DROP TABLE IF EXISTS members;
