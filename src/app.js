@@ -1,7 +1,8 @@
 require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
-const cors = require('cors')
+const cors = require('cors');
+const {CLIENT_ORIGIN} = require('./config');
 const helmet = require('helmet')
 const { NODE_ENV } = require('./config')
 const MembersRouter = require('./members/members-router')
@@ -22,7 +23,13 @@ const morganOption = (NODE_ENV === 'production')
 app.use(morgan(morganOption, {
   skip: () => NODE_ENV === 'test',
 }))
-app.use(cors())
+
+
+app.use(
+    cors(
+        
+    )
+);
 app.use(helmet())
 
 app.use('/api/members', MembersRouter)
