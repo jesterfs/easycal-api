@@ -21,7 +21,10 @@ function buildCalendars(results) {
 
 const MembersService = {
     getAllMembers(knex) {
-      return knex.select('*').from('members')
+      return knex.select({
+        id: 'members.id',
+      name: 'members.name'})
+      .from('members')
     },
     insertMember(knex, newMember) {
       return knex
@@ -71,7 +74,7 @@ const MembersService = {
     return db('members').select({
       id: 'members.id',
       name: 'members.name',
-      email: 'members.email',
+      // email: 'members.email',
       calendarId: 'calendars.id',
       calendarName: 'calendars.name'
       
@@ -107,14 +110,14 @@ const MembersService = {
       return db('members').select({
         id: 'members.id',
         name: 'members.name',
-        email: 'members.email',
+        // email: 'members.email',
         eventId: 'events.id',
         eventName: 'events.name',
         eventStartTime: 'events.start_time',
         eventEndTime: 'events.end_time',
         ownerId: 'o.id',
         ownerName: 'o.name',
-        ownerEmail: 'o.email',
+        // ownerEmail: 'o.email',
         calendarId: 'calendars.id',
         calendarName: 'calendars.name'
         

@@ -99,9 +99,10 @@ eventsRouter
     })
 
     .delete((req, res, next) => {
-        
+        console.log(res.user, res.event)
         if (res.user.id !== res.event.owner.id)
             return res.status(403).json({message: 'forbidden' });
+            console.log('string')
         EventsService.deleteEvent(
             req.app.get('db'),
             req.params.id
