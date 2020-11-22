@@ -1,10 +1,8 @@
 
 const path = require('path')
 const express = require('express')
-// const xss = require('xss')
 const EventsService = require('./eventsservice')
 const { requireAuth } = require('../middleware/basic-auth')
-
 const eventsRouter = express.Router()
 const jsonParser = express.json()
 
@@ -17,18 +15,6 @@ const serializeEvent = event => ({
     calendar_id: event.calendar_id,
     members: event.members
   })
-  
-  
-//   events: member.events.map((e) => ({
-//     endTime: e.endTime,
-//     id: e.id,
-//     ...
-    
-//   })
-// member.events.map(serializeEvent)
-
-
-
 
 eventsRouter
     .route('/')
@@ -42,8 +28,8 @@ eventsRouter
     })
 
     .post( jsonParser, (req, res, next) => {
-        const {name, start_time, startingtime, end_time, endingtime, owner_id, calendar_id, inviteIds} = req.body
-        const newEvent = {name, start_time, startingtime, end_time, endingtime, owner_id, calendar_id}
+        const {name, start_time, end_time, owner_id, calendar_id, inviteIds} = req.body
+        const newEvent = {name, start_time, end_time, owner_id, calendar_id}
         
 
         
@@ -58,17 +44,7 @@ eventsRouter
         .catch(next)
     })
 
-    // eventsRouter
-    // .route('/calendar/:calendarId')
-    // .get((req, res, next) => {
-    //     EventsService.getByCalendar(
-    //         req.app.get('db'),
-    //         req.params.calendarId)
-    //         .then(events => {
-    //             res.json(events)
-    //         })
-    //         .catch(next)
-    // })
+
 
 eventsRouter
     .route('/:id')
@@ -99,10 +75,10 @@ eventsRouter
     })
 
     .delete((req, res, next) => {
-        console.log(res.user, res.event)
+        
         if (res.user.id !== res.event.owner.id)
             return res.status(403).json({message: 'forbidden' });
-            console.log('string')
+            
         EventsService.deleteEvent(
             req.app.get('db'),
             req.params.id
@@ -116,7 +92,6 @@ eventsRouter
     .patch(jsonParser, (req, res, next) => {
         const {name, start_time, end_time, owner_id, calendar_id, inviteIds}= req.body
         const eventToUpdate = {name, start_time, end_time, owner_id, calendar_id}
-        // const membersToInvite = {inviteIds}
 
         const numberOfValues = Object.values(eventToUpdate).filter(Boolean).length
         if (numberOfValues === 0)

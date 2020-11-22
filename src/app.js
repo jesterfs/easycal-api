@@ -8,9 +8,6 @@ const { NODE_ENV } = require('./config')
 const MembersRouter = require('./members/members-router')
 const CalendarsRouter = require('./calendars/calendars-router')
 const EventsRouter = require('./events/events-router')
-
-const MembersService = require('./members/membersservice')
-// const xss = require('xss')
 const jsonParser = express.json()
 const path = require('path')
 

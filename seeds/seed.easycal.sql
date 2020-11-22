@@ -27,11 +27,11 @@ VALUES
 (5, 2),
 (6, 3);
 
-INSERT INTO events (name, start_time, end_time, startingTime, endingTime, calendar_id, owner_id)
+INSERT INTO events (name, start_time, end_time, calendar_id, owner_id)
 VALUES
-('Staff Meeting', '2020-10-01 12:00:00', '2020-10-01 13:00:00', '12:00:00 PM', '1:00:00 PM', 1, 1),
-('Performance Review', '2020-10-02 12:00:00', '2020-10-02 13:00:00', '12:00:00 PM', '1:00:00 PM', 2, 2),
-('Inventory', '2020-10-04 12:00:00', '2020-10-04 13:00:00', '12:00:00 PM', '1:00:00 PM', 3, 2);
+('Staff Meeting', '2020-10-01 12:00:00', '2020-10-01 13:00:00', 1, 1),
+('Performance Review', '2020-10-02 12:00:00', '2020-10-02 13:00:00',  2, 2),
+('Inventory', '2020-10-04 12:00:00', '2020-10-04 13:00:00',  3, 2);
 
 
 INSERT INTO member_events (member_id, event_id)

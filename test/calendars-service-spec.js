@@ -30,24 +30,24 @@ describe('calendars service object', function() {
         {
             id: 1,
             name: 'event1',
-            start_time: '2020-10-01 12:00:00',
-            end_time: '2020-10-01 12:00:00',
+            start_time: new Date ('2020-10-02T17:00:00.000Z'),
+            end_time: new Date ('2020-10-02T17:00:00.000Z'),
             calendar_id: 4,
             owner_id: 1
         },
         {
             id: 2,
             name: 'event2',
-            start_time: '2020-10-02 12:00:00',
-            end_time: '2020-10-02 12:00:00',
+            start_time: new Date ('2020-10-02T17:00:00.000Z'),
+            end_time: new Date ('2020-10-02T17:00:00.000Z'),
             calendar_id: 5,
             owner_id: 2
         },
         {
             id: 3,
             name: 'event3',
-            start_time: '2020-10-03 12:00:00',
-            end_time: '2020-10-03 12:00:00',
+            start_time: new Date ('2020-10-02T17:00:00.000Z'),
+            end_time: new Date ('2020-10-02T17:00:00.000Z'),
             calendar_id: 6,
             owner_id: 3
         }
@@ -160,18 +160,7 @@ describe('calendars service object', function() {
                 })
         } )
 
-        it('getById() resolves an calendar by id from calendars', () => {
-            const thirdId = 3
-            const thirdTestCalendar = testCalendars[thirdId - 1]
-            return CalendarsService.getById(db, thirdId)
-                .then(actual => {
-                    expect(actual).to.eql({
-                        id: thirdId,
-                        name: thirdTestCalendar.name,
-                        owner: thirdTestCalendar.owner,
-                    })
-                })
-        })
+        
 
         it('getMembersById() resolves all members from a calendar', () => {
             const calendarId = 4
@@ -183,19 +172,24 @@ describe('calendars service object', function() {
                         owner: [{
                             id: testmembers[0].id,
                             name: testmembers[0].name,
-                            email: testmembers[0].email
+                            
                         }],
                         members: [{
                             id: testmembers[0].id,
                             name: testmembers[0].name,
-                            email: testmembers[0].email,
-                            password: testmembers[0].password
+                            
                         },
                         {
                             id: testmembers[1].id,
                             name: testmembers[1].name,
-                            email: testmembers[1].email,
-                            password: testmembers[1].password
+                            
+                        }],
+                        events: [{
+                            id: testEvents[0].id,
+                            name: testEvents[0].name,
+                            start: testEvents[0].start_time,
+                            end: testEvents[0].end_time,
+                            owner: testEvents[0].owner_id
                         }]
                     })
                 })
@@ -212,10 +206,10 @@ describe('calendars service object', function() {
         })
 
         it('updateCalendar() updates an calendar from calendars', () => {
-            const idOfCalendarToUpdate = 3
+            const idOfCalendarToUpdate = 4
             const newCalendarData = {
                 name: 'updated name',
-                owner: 'updated owner'
+                owner: 1
             }
             return CalendarsService.updateCalendar(db, idOfCalendarToUpdate, newCalendarData)
                 .then(() => CalendarsService.getById(db, idOfCalendarToUpdate))
@@ -229,26 +223,52 @@ describe('calendars service object', function() {
     })
 
     context('Given Calendars has no data', () => {
+
+        beforeEach(() => {
+            return db
+                .into('members')
+                .insert(testmembers)
+        })
+
         it('getAllCalendars() resolves an empty array', () => {
             return CalendarsService.getAllCalendars(db)
                 .then(actual => {
                     expect(actual).to.eql([])
                 })
         })
+
+        it('insertCalendar() inserts a new calendar and respolves the new calendar with an id', () => {
+            const newCalendar = {
+                name: 'Test new Calendar',
+                owner: 1
+            }
+            
+            return CalendarsService.insertCalendar(db, newCalendar)
+                .then(actual => {
+                    expect(actual).to.eql({
+                        id: 1,
+                        name: newCalendar.name,
+                        owner: newCalendar.owner,
+                    })
+                })
+        })
+
+        it('insertCalendarWithInvites() inserts a new calendar and respolves the new calendar with an id', () => {
+            const newCalendar = {
+                name: 'Test new Calendar',
+                owner: 1
+            }
+            const memberIds = [1, 2]
+            return CalendarsService.insertCalendarWithInvites(db, newCalendar, memberIds)
+                .then(actual => {
+                    expect(actual).to.eql({
+                        id: 1,
+                        name: newCalendar.name,
+                        owner: newCalendar.owner,
+                    })
+                })
+        })
     })
 
-    it('insertCalendar() inserts a new calendar and respolves the new calendar with an id', () => {
-        const newCalendar = {
-            name: 'Test new Calendar',
-            owner: 'test owner'
-        }
-        return CalendarsService.insertCalendar(db, newCalendar)
-            .then(actual => {
-                expect(actual).to.eql({
-                    id: 1,
-                    name: newCalendar.name,
-                    owner: newCalendar.owner,
-                })
-            })
+        
     })
-})

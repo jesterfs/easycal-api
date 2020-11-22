@@ -26,6 +26,7 @@ const MembersService = {
       name: 'members.name'})
       .from('members')
     },
+    
     insertMember(knex, newMember) {
       return knex
         .insert(newMember)
@@ -50,9 +51,7 @@ const MembersService = {
       
       await this.inviteMemberToCalendars(db, member.id, calendarIds);
       return member;
-  },
-
-//////
+    },
 
     getById(knex, id) {
       return knex.from('members').select('*').where('id', id).first()
@@ -68,56 +67,41 @@ const MembersService = {
       return Promise.all(
          ids.map((id) => this.getByMemberId(db, id))
      )
-   },
+    },
    
-   getMemberWithCalendars(db, memberId) {
-    return db('members').select({
-      id: 'members.id',
-      name: 'members.name',
-      // email: 'members.email',
-      calendarId: 'calendars.id',
-      calendarName: 'calendars.name'
-      
-    })
-      .leftJoin({mc: 'member_calenders'}, )
-      .leftJoin('calendars', 'mc.calendar_id', 'calendars.id')
-      .where({ 'members.id': memberId })
-      .then((results) => {
-        const { id, name, email } = first;
-        const member = {
-          id, name, email, calendars: buildCalendars(results)
-        };
-        return member;
-      });
-  },
-
-/////////////////////
-
-
-/////////////////////
-
-
-
-
-
-
-
-
-
+    getMemberWithCalendars(db, memberId) {
+      return db('members').select({
+        id: 'members.id',
+        name: 'members.name',
+        calendarId: 'calendars.id',
+        calendarName: 'calendars.name'
+        
+      })
+        .leftJoin({mc: 'member_calenders'}, )
+        .leftJoin('calendars', 'mc.calendar_id', 'calendars.id')
+        .where({ 'members.id': memberId })
+        .then((results) => {
+          const { id, name, email } = first;
+          const member = {
+            id, name, email, calendars: buildCalendars(results)
+          };
+          return member;
+        });
+    },
 
 
     getByMemberId(db, memberId) {
       return db('members').select({
         id: 'members.id',
         name: 'members.name',
-        // email: 'members.email',
+        
         eventId: 'events.id',
         eventName: 'events.name',
         eventStartTime: 'events.start_time',
         eventEndTime: 'events.end_time',
         ownerId: 'o.id',
         ownerName: 'o.name',
-        // ownerEmail: 'o.email',
+        
         calendarId: 'calendars.id',
         calendarName: 'calendars.name'
         
@@ -133,15 +117,15 @@ const MembersService = {
           if (!first)
             return null;
     
-          const { id, name, email } = first;
+          const { id, name } = first;
           const member = {
-            id, name, email, events: [], calendars: []
+            id, name, events: [], calendars: []
           };
     
           const eventIds = new Set();
     for (const line of results) {
       
-      const { eventId, eventName, eventStartTime, eventEndTime, ownerId, ownerName, ownerEmail } = line;
+      const { eventId, eventName, eventStartTime, eventEndTime, ownerId, ownerName } = line;
   
       if (eventId) {
         if (eventIds.has(eventId))
@@ -157,7 +141,7 @@ const MembersService = {
           owner: {
             id: ownerId,
             name: ownerName,
-            email: ownerEmail
+        
           }
         };
         
@@ -183,9 +167,7 @@ const MembersService = {
             
             member.calendars.push(calendar);
           }
-        }
-
-          
+        }        
           return member;
         });
     },
@@ -199,7 +181,7 @@ const MembersService = {
     updateMember(knex, id, newMemberFields) {
       return knex('members')
       .where({ id })
-      .update(newMemberFields, "*")  
+      .update(newMemberFields, '*')  
       
         
     },

@@ -30,24 +30,24 @@ describe('events service object', function() {
         {
             id: 1,
             name: 'event1',
-            start_time: '2020-10-01 12:00:00',
-            end_time: '2020-10-01 12:00:00',
+            start_time: new Date ('2020-10-02T17:00:00.000Z'),
+            end_time: new Date ('2020-10-02T17:00:00.000Z'),
             calendar_id: 4,
             owner_id: 1
         },
         {
             id: 2,
             name: 'event2',
-            start_time: '2020-10-02 12:00:00',
-            end_time: '2020-10-02 12:00:00',
+            start_time: new Date ('2020-10-02T17:00:00.000Z'),
+            end_time: new Date ('2020-10-02T17:00:00.000Z'),
             calendar_id: 5,
             owner_id: 2
         },
         {
             id: 3,
             name: 'event3',
-            start_time: '2020-10-03 12:00:00',
-            end_time: '2020-10-03 12:00:00',
+            start_time: new Date ('2020-10-02T17:00:00.000Z'),
+            end_time: new Date ('2020-10-02T17:00:00.000Z'),
             calendar_id: 6,
             owner_id: 3
         }
@@ -136,11 +136,29 @@ describe('events service object', function() {
              
              return EventsService.getAllEvents(db)
                 .then(actual => {
-                    expect(actual).to.eql(testevents)
+                    expect(actual).to.eql(testEvents)
                 })
         } )
 
         it('getById() resolves event by id from members', () => {
+
+            //need to fix date format but otherwise good
+            const thirdId = 3
+            const thirdTestEvent = testEvents[thirdId - 1]
+            return EventsService.getById(db, thirdId)
+                .then(actual => {
+                    expect(actual).to.eql({
+                        id: thirdId,
+                        name: thirdTestEvent.name,
+                        start_time: thirdTestEvent.start_time,
+                        end_time: thirdTestEvent.end_time,
+                        calendar_id: thirdTestEvent.calendar_id,
+                        owner_id: thirdTestEvent.owner_id
+                    })
+                })
+        })
+
+        it('getEventsByCalendar() resolves event by id from members', () => {
 
             //need to fix date format but otherwise good
             const thirdId = 3
@@ -168,10 +186,12 @@ describe('events service object', function() {
                     expect(actual).to.eql({
                         id: testEvents[0].id,
                         name: testEvents[0].name,
-                        starTime: testEvents[0].start_time,
+                        startTime: testEvents[0].start_time,
                         endTime: testEvents[0].end_time,
                         calendarId: testEvents[0].calendar_id,
-                        owner: testEvents[0].owner_id,
+                        owner: {
+                            id: testEvents[0].owner_id,
+                            name: testmembers[0].name},
                         members: [{
                             
                             id: testmembers[0].id,
@@ -202,12 +222,33 @@ describe('events service object', function() {
             const newEventData = {
                 name: 'updated name',
                 owner_id: 3,
-                start_time: '2021-10-03 12:00:00',
-                end_time: '2021-10-03 12:00:00',
-                calendar_id: 6 
-
+                start_time: new Date ('2020-11-02T17:00:00.000Z'),
+                end_time: new Date ('2020-11-02T17:00:00.000Z'),
+                calendar_id: 6, 
             }
             return EventsService.updateEvent(db, idOfEventToUpdate, newEventData)
+                .then(() => EventsService.getById(db, idOfEventToUpdate))
+                .then(event => {
+                    expect(event).to.eql({
+                        id: idOfEventToUpdate,
+                        ...newEventData,
+                    })
+                })
+        })
+
+        it('updateEventWithInvites() updates an event from events woth new members', () => {
+            //date format issue
+            const idOfEventToUpdate = 2
+            const newEventData = {
+                name: 'updated name',
+                owner_id: 3,
+                start_time: new Date ('2020-11-02T17:00:00.000Z'),
+                end_time: new Date ('2020-11-02T17:00:00.000Z'),
+                calendar_id: 6, 
+            }
+            const memberIds = [1, 2]
+
+            return EventsService.updateEventWithInvites(db, idOfEventToUpdate, newEventData, memberIds)
                 .then(() => EventsService.getById(db, idOfEventToUpdate))
                 .then(event => {
                     expect(event).to.eql({
@@ -238,27 +279,53 @@ describe('events service object', function() {
                     expect(actual).to.eql([])
                 })
         })
-    })
 
-    it.only('insertEvents() inserts a new event and resolves the new event with an id', () => {
-        const newEvent = {
-            name: 'new name',
-            owner_id: 3,
-            start_time: '2021-10-03 12:00:00',
-            end_time: '2021-10-03 12:00:00',
-            calendar_id: 4
-        }
-        return EventsService.insertEvent(db, newEvent)
-            .then(actual => {
-                expect(actual).to.eql({
-                    id: 1,
-                    name: newEvent.name,
-                    owner_id: newEvent.owner_id,
-                    start_time: newEvent.start_time,
-                    end_time: newEvent.endTime,
-                    calendar_id: newEvent.calendar_id
-
+        it('insertEvents() inserts a new event and resolves the new event with an id', () => {
+            const newEvent = {
+                name: 'new name',
+                owner_id: 3,
+                start_time: new Date ('2020-10-02T17:00:00.000Z'),
+                end_time: new Date ('2020-10-02T17:00:00.000Z'),
+                calendar_id: 4
+            }
+            return EventsService.insertEvent(db, newEvent)
+                .then(actual => {
+                    expect(actual).to.eql({
+                        id: 1,
+                        name: newEvent.name,
+                        owner_id: newEvent.owner_id,
+                        start_time: newEvent.start_time,
+                        end_time: newEvent.end_time,
+                        calendar_id: newEvent.calendar_id
+    
+                    })
                 })
-            })
+        })
+
+        it('insertEventWithInvites() inserts a new event and resolves the new event with an id', () => {
+            const newEvent = {
+                name: 'new name',
+                owner_id: 3,
+                start_time: new Date ('2020-10-02T17:00:00.000Z'),
+                end_time: new Date ('2020-10-02T17:00:00.000Z'),
+                calendar_id: 4
+            }
+
+            const memberIds = [1,2]
+            return EventsService.insertEventWithInvites(db, newEvent, memberIds)
+                .then(actual => {
+                    expect(actual).to.eql({
+                        id: 1,
+                        name: newEvent.name,
+                        owner_id: newEvent.owner_id,
+                        start_time: newEvent.start_time,
+                        end_time: newEvent.end_time,
+                        calendar_id: newEvent.calendar_id
+    
+                    })
+                })
+        })
     })
+
+    
 })

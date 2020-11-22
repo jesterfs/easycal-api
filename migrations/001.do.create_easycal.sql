@@ -36,8 +36,6 @@ CREATE TABLE events (
     name TEXT NOT NULL,
     start_time TIMESTAMPTZ NOT NULL,
     end_time TIMESTAMPTZ NOT NULL,
-    startingTime TEXT NOT NULL,
-    endingTime TEXT NOT NULL,
     calendar_id INTEGER REFERENCES calendars(id) ON DELETE CASCADE NOT NULL,
     owner_id INTEGER REFERENCES members(id) ON DELETE CASCADE NOT NULL
 

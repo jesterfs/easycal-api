@@ -3,6 +3,11 @@ const CalendarsService = {
       return knex.select('*').from('calendars')
     },
 
+
+    getById(knex, id) {
+      return knex.from('calendars').select('*').where('id', id).first()
+    },
+
     insertCalendar(knex, newCalendar) {
       return knex
         .insert(newCalendar)
@@ -28,14 +33,9 @@ const CalendarsService = {
       
       
       await this.inviteMembers(db, calendar.id, memberIds);
-      return calendar;
+      return calendar ;
   },
 
-
-
-    getById(knex, id) {
-      return knex.from('calendars').select('*').where('id', id).first()
-    },
 
     getMembersById(db, calendarId) {
       return db('calendars').select({
@@ -44,33 +44,21 @@ const CalendarsService = {
         
         ownerId: 'o.id',
         ownerName: 'o.name',
-        ownerEmail: 'o.email',
         
-        
-
         memberId: 'members.id',
         memberName: 'members.name',
-        memberEmail: 'members.email',
-        memberPassword: 'members.password',
         
         eventId: 'events.id',
         eventName: 'events.name',
         eventStart: 'events.start_time',
         eventEnd: 'events.end_time',
         eventOwner: 'events.owner_id'
-
-        // eventMemberId: 'p.id',
-        // eventMemberName: 'p.name'
-        
-
       })
         .leftJoin('member_calenders', 'calendars.id', 'member_calenders.calendar_id')
         .leftJoin('members', 'member_calenders.member_id', 'members.id')
         
         .leftJoin('events', 'events.calendar_id', 'calendars.id')
         .leftJoin({ o:'members'}, 'o.id', 'calendars.owner')
-        // .leftJoin( 'events', 'events.id', 'member_events.event_id')
-        // .leftJoin({p:'members'}, 'p.id', 'member_events.member_id')
         
         .where({ 'calendars.id': calendarId })
         .then((results) => {
@@ -101,7 +89,7 @@ const CalendarsService = {
           const mIds = new Set();
 
           for (const line of results) {
-            const {  memberId, memberName, memberEmail, memberPassword } = line;
+            const {  memberId, memberName } = line;
             
            
             
@@ -109,9 +97,8 @@ const CalendarsService = {
             if (memberId && !mIds.has(memberId)) {
               const member = {
                 id: memberId,
-                name: memberName,
-                email: memberEmail,
-                password: memberPassword
+                name: memberName
+                
                 
               };
               calendar.members.push(member);

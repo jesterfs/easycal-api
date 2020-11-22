@@ -15,39 +15,12 @@ const serializeCalendar = calendar => ({
     owner: calendar.owner,
   })
   
-  
-//   events: member.events.map((e) => ({
-//     endTime: e.endTime,
-//     id: e.id,
-//     ...
-    
-//   })
-// member.events.map(serializeEvent)
 
-
-  const serializeMemberEvents = member => (
-    {
-      email: member.email,
-      id: member.id,
-      name: member.name,
-      password: member.password,
-      events: [{
-          endTime: member.events.end_time,
-          id: member.events.id,
-          name: member.events.name,
-          start_time: member.events.start_time,
-          owner: {
-              email: member.events.owner.email,
-              id: member.events.owner.id,
-              name: member.events.owner.name
-          }
-        }]
-        })
 
     calendarsRouter
         .route('/')
         .all(requireAuth)
-        .get(requireAuth, (req, res, next) => {
+        .get( (req, res, next) => {
           CalendarsService.getAllCalendars(req.app.get('db'))
           .then(calendars => {
             res.json(calendars)
@@ -55,7 +28,7 @@ const serializeCalendar = calendar => ({
           .catch(next)
         })
 
-        .post(requireAuth, jsonParser, (req, res, next) => {
+        .post(jsonParser, (req, res, next) => {
           const {name, owner, inviteIds} = req.body
           const newCalendar = {name, owner}
           CalendarsService.insertCalendarWithInvites(req.app.get('db'), newCalendar, inviteIds)
@@ -70,27 +43,29 @@ const serializeCalendar = calendar => ({
 
     calendarsRouter
         .route('/:id')
-        .all(requireAuth, (req, res, next) => {
+        .all(
+          requireAuth, 
+          (req, res, next) => {
           if(isNaN(parseInt(req.params.id))) {
             return res.status(404).json({
               error: {message: 'Invalid Id'}
             })
           }
-        CalendarsService.getMembersById(
-          req.app.get('db'),
-          req.params.id
-        )
-          .then(calendar => {
-            if(!calendar) {
-              return res.status(404).json({
-                error: { message: 'Calendar does not exist'}
-              })
-            }
-            res.calendar= calendar
-            next()
+          CalendarsService.getMembersById(
+            req.app.get('db'),
+            req.params.id
+          )
+            .then(calendar => {
+              if(!calendar) {
+                return res.status(404).json({
+                  error: { message: 'Calendar does not exist'}
+                })
+              }
+              res.calendar= calendar
+              next()
+            })
+            .catch(next)
           })
-          .catch(next)
-        })
 
         .get((req, res, next) => {
          
@@ -129,4 +104,5 @@ const serializeCalendar = calendar => ({
             })
             .catch(next)
         })
-    module.exports = calendarsRouter
+
+module.exports = calendarsRouter

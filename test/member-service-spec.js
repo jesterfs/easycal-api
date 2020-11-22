@@ -6,20 +6,20 @@ describe('members service object', function() {
 
     let testmembers = [
         {
-            id: 1,
+            id: 4,
             name: 'member1',
             email: 'member1@mail.com',
             password: 'password'
         },
         {
-            id: 2,
+            id: 5,
             name: 'member2',
             email: 'member2@mail.com',
             password: 'password'
         },
         {
             
-            id: 3,
+            id: 6,
             name: 'member3',
             email: 'member3@mail.com',
             password: 'password'
@@ -30,40 +30,40 @@ describe('members service object', function() {
         {
             id: 1,
             name: 'event1',
-            start_time: '2020-10-01 12:00:00',
-            end_time: '2020-10-01 12:00:00',
+            start_time: new Date ('2020-10-02T17:00:00.000Z'),
+            end_time: new Date ('2020-10-02T17:00:00.000Z'),
             calendar_id: 4,
-            owner_id: 1
+            owner_id: 4
         },
         {
             id: 2,
             name: 'event2',
-            start_time: '2020-10-02 12:00:00',
-            end_time: '2020-10-02 12:00:00',
+            start_time: new Date ('2020-10-02T17:00:00.000Z'),
+            end_time: new Date ('2020-10-02T17:00:00.000Z'),
             calendar_id: 5,
-            owner_id: 2
+            owner_id: 5
         },
         {
             id: 3,
             name: 'event3',
-            start_time: '2020-10-03 12:00:00',
-            end_time: '2020-10-03 12:00:00',
+            start_time: new Date ('2020-10-02T17:00:00.000Z'),
+            end_time: new Date ('2020-10-02T17:00:00.000Z'),
             calendar_id: 6,
-            owner_id: 3
+            owner_id: 6
         }
     ]
 
     let testMemberEvents = [
         {
-            member_id: 1,
+            member_id: 4,
             event_id: 1
         },
         {
-            member_id: 2,
+            member_id: 5,
             event_id: 2
         },
         {
-            member_id: 3,
+            member_id: 6,
             event_id: 3
         }
     ]
@@ -72,18 +72,33 @@ describe('members service object', function() {
         {
             id: 4,
             name: 'calendar1',
-            owner: 1
+            owner: 4
         },
         {
             id: 5,
             name: 'calendar2',
-            owner: 2
+            owner: 5
         },
         {
             
             id: 6,
             name: 'calendar3',
-            owner: 3
+            owner: 6
+        }
+    ]
+
+    let testMemberCalendars = [
+        {
+            member_id: 4,
+            calendar_id: 4
+        },
+        {
+            member_id: 5,
+            calendar_id: 5
+        },
+        {
+            member_id: 6,
+            calendar_id: 6
         }
     ]
 
@@ -103,7 +118,7 @@ describe('members service object', function() {
     after(() => db.destroy())
 
 
-   context('Given members has data', () => {
+    context('Given members has data', () => {
 
         beforeEach(() => {
             return db
@@ -129,6 +144,12 @@ describe('members service object', function() {
                 .insert(testMemberEvents)
         })
 
+        beforeEach(() => {
+            return db
+                .into('member_calenders')
+                .insert(testMemberCalendars)
+        })
+
         
 
 
@@ -136,13 +157,30 @@ describe('members service object', function() {
              //test that MembersService.getAllmembers gets all members
              return MembersService.getAllMembers(db)
                 .then(actual => {
-                    expect(actual).to.eql(testmembers)
+                    expect(actual).to.eql([
+                        {
+                            id: 4,
+                            name: 'member1',
+                            
+                        },
+                        {
+                            id: 5,
+                            name: 'member2',
+                            
+                        },
+                        {
+                            
+                            id: 6,
+                            name: 'member3',
+                            
+                        }
+                    ])
                 })
         } )
 
         it('getById() resolves an member by id from members', () => {
-            const thirdId = 3
-            const thirdTestMember = testmembers[thirdId - 1]
+            const thirdId = 6
+            const thirdTestMember = testmembers[thirdId - 4]
             return MembersService.getById(db, thirdId)
                 .then(actual => {
                     expect(actual).to.eql({
@@ -156,24 +194,26 @@ describe('members service object', function() {
 
 
         it('getByMemberId() resolves all events from a member', () => {
-            const memberId = 1
+            const memberId = 4
             return MembersService.getByMemberId(db, memberId)
                 .then(actual => {
                     expect(actual).to.eql({
-                        email: testmembers[0].email,
                         id: testmembers[0].id,
                         name: testmembers[0].name,
                         events: [{
-                            endTime: testEvents[0].end_time,
+                            end_time: testEvents[0].end_time,
                             id: testEvents[0].id,
                             name: testEvents[0].name,
                             start_time: testEvents[0].start_time,
                             owner: {
-                                email: testmembers[0].email,
                                 id: testmembers[0].id,
                                 name: testmembers[0].name
                             }
-                            
+                           
+                        }],
+                        calendars: [{
+                            id: testCalendars[0].id,
+                            name: testCalendars[0].name
                         }]
                     })
                 })
@@ -182,17 +222,28 @@ describe('members service object', function() {
 
 
         it('deleteMember() removes a member by id from members', () => {
-            const memberId = 3
+            const memberId = 6
             return MembersService.deleteMember(db, memberId)
                 .then(() => MembersService.getAllMembers(db))
                 .then(allmembers => {
                     const expected = testmembers.filter(member => member.id !== memberId)
-                    expect(allmembers).to.eql(expected)
+                    expect(allmembers).to.eql([
+                        {
+                            id: 4,
+                            name: 'member1',
+                            
+                        },
+                        {
+                            id: 5,
+                            name: 'member2',
+                            
+                        }
+                    ])
                 })
         })
 
         it('updateMember() updates a member from members', () => {
-            const idOfMemberToUpdate = 3
+            const idOfMemberToUpdate = 6
             const newMemberData = {
                 name: 'updated name',
                 email: 'updated email',
@@ -207,32 +258,58 @@ describe('members service object', function() {
                     })
                 })
         })
+        it('insertMemberWithCalendars() inserts a new member and resolves the new member with an id', () => {
+            
+            const newMember = {
+                name: 'Test new member',
+                email: 'test email1',
+                password: 'test password'
+            }
+            const calendarIds = []
+            return MembersService.insertMemberWithCalendars(db, newMember, calendarIds)
+                .then(actual => {
+                    expect(actual).to.eql({
+                        id: 1,
+                        name: newMember.name,
+                        email: newMember.email,
+                        password: newMember.password
+    
+                    })
+                })
+        })
     })
 
     context('Given members has no data', () => {
+        
+
         it('getAllMembers() resolves an empty array', () => {
             return MembersService.getAllMembers(db)
                 .then(actual => {
                     expect(actual).to.eql([])
                 })
         })
-    })
-
-    it('insertMember() inserts a new member and resolves the new member with an id', () => {
-        const newMember = {
-            name: 'Test new member',
-            email: 'test email',
-            password: 'test password'
-        }
-        return MembersService.insertMember(db, newMember)
-            .then(actual => {
-                expect(actual).to.eql({
-                    id: 1,
-                    name: newMember.name,
-                    email: newMember.email,
-                    password: newMember.password
-
+        it('insertMember() inserts a new member and resolves the new member with an id', () => {
+            const newMember = {
+                name: 'Test new member',
+                email: 'test email',
+                password: 'test password'
+            }
+            return MembersService.insertMember(db, newMember)
+                .then(actual => {
+                    expect(actual).to.eql({
+                        id: 1,
+                        name: newMember.name,
+                        email: newMember.email,
+                        password: newMember.password
+    
+                    })
                 })
-            })
+        })
+
+        
+
+        
     })
+
+    
 })
