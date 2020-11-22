@@ -102,7 +102,6 @@ membersRouter
 
   membersRouter
     .route('/login')
-    .all(requireAuth)
     .post(jsonParser, (req, res, next) => {
       const { email, password } = req.body;
 
