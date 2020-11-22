@@ -27,13 +27,10 @@ eventsRouter
             .catch(next)
     })
 
-    .post( jsonParser, (req, res, next) => {
+    .post(jsonParser, (req, res, next) => {
         const {name, start_time, end_time, owner_id, calendar_id, inviteIds} = req.body
         const newEvent = {name, start_time, end_time, owner_id, calendar_id}
         
-
-        
-
         EventsService.insertEventWithInvites(req.app.get('db'), newEvent, inviteIds)
             .then(event => {
                 res
